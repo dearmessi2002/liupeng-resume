@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>刘鹏 - 个人简历作品集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            color: #333;
+            background: #f5f7fa;
+            line-height: 1.6;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #1e3a5f;
+            padding: 0 40px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        .navbar .logo {
+            color: #fff;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #fff;
+            background: rgba(255,255,255,0.15);
+        }
+
+        /* 页面容器 */
+        .page {
+            display: none;
+            padding-top: 64px;
+            min-height: 100vh;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== 简历页 ===== */
+        /* Hero封面区 */
+        .hero {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #3d7ab5 100%);
+            padding: 80px 40px 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 50px;
+            flex-wrap: wrap;
+        }
+
+        .hero-avatar {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 5px solid rgba(255,255,255,0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            object-fit: cover;
+        }
+
+        .hero-info {
+            color: #fff;
+            text-align: left;
+        }
+
+        .hero-name {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .hero-title {
+            font-size: 20px;
+            opacity: 0.9;
+            margin-bottom: 16px;
+        }
+
+        .hero-desc {
+            font-size: 15px;
+            opacity: 0.8;
+            max-width: 400px;
+            line-height: 1.8;
+        }
+
+        /* 简历主体 */
+        .resume-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 30px;
+        }
+
+        /* 左侧栏 */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e3a5f;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8edf3;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: #1e3a5f;
+            border-radius: 2px;
+        }
+
+        .info-item {
+            margin-bottom: 12px;
+            font-size: 14px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .info-label {
+            color: #888;
+            min-width: 60px;
+            flex-shrink: 0;
+        }
+
+        .info-value {
+            color: #333;
+            word-break: break-all;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .skill-tag {
+            background: #e8f0f8;
+            color: #1e3a5f;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* 右侧主内容 */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 24px;
+            margin-bottom: 24px;
+            border-left: 2px solid #e8edf3;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -7px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            background: #1e3a5f;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            box-shadow: 0 0 0 2px #1e3a5f;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .timeline-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #222;
+        }
+
+        .timeline-subtitle {
+            font-size: 14px;
+            color: #1e3a5f;
+            font-weight: 500;
+        }
+
+        .timeline-date {
+            font-size: 13px;
+            color: #888;
+            flex-shrink: 0;
+        }
+
+        .timeline-desc {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.8;
+            margin-top: 8px;
+        }
+
+        .timeline-desc ul {
+            padding-left: 20px;
+            margin-top: 6px;
+        }
+
+        .timeline-desc li {
+            margin-bottom: 6px;
+        }
+
+        .honor-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+
+        .honor-item:last-child {
+            border-bottom: none;
+        }
+
+        .honor-name {
+            font-weight: 500;
+        }
+
+        .honor-date {
+            color: #888;
+            flex-shrink: 0;
+        }
+
+        /* ===== 作品集页 ===== */
+        .gallery-header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+            padding: 60px 40px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .gallery-header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .gallery-header p {
+            opacity: 0.8;
+            font-size: 16px;
+        }
+
+        .gallery-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .gallery-section {
+            margin-bottom: 50px;
+        }
+
+        .gallery-section-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1e3a5f;
+            margin-bottom: 24px;
+            padding-left: 16px;
+            border-left: 4px solid #1e3a5f;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .photo-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .photo-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .photo-name {
+            padding: 14px 18px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            text-align: center;
+        }
+
+        /* 灯箱 */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 85vh;
+            border-radius: 8px;
+        }
+
+        .lightbox-caption {
+            color: #fff;
+            text-align: center;
+            padding: 16px;
+            font-size: 16px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #fff;
+            font-size: 40px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            line-height: 1;
+        }
+
+        .lightbox-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fff;
+            font-size: 48px;
+            cursor: pointer;
+            background: rgba(0,0,0,0.3);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: background 0.3s;
+        }
+
+        .lightbox-nav:hover {
+            background: rgba(0,0,0,0.6);
+        }
+
+        .lightbox-prev { left: 20px; }
+        .lightbox-next { right: 20px; }
+
+        /* 页脚 */
+        .footer {
+            background: #1e3a5f;
+            color: rgba(255,255,255,0.7);
+            padding: 30px 40px;
+            text-align: center;
+            font-size: 14px;
+            margin-top: 40px;
+        }
+
+        .footer a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .hero {
+                padding: 50px 20px 40px;
+                gap: 30px;
+                text-align: center;
+            }
+
+            .hero-avatar {
+                width: 140px;
+                height: 140px;
+            }
+
+            .hero-name {
+                font-size: 32px;
+            }
+
+            .hero-info {
+                text-align: center;
+            }
+
+            .resume-container {
+                grid-template-columns: 1fr;
+            }
+
+            .photo-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 12px;
+            }
+
+            .photo-card img {
+                height: 140px;
+            }
+
+            .photo-name {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .gallery-header h1 {
+                font-size: 28px;
+            }
+
+            .lightbox-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 导航栏 -->
+<nav class="navbar">
+    <div class="logo">刘鹏 · 个人主页</div>
+    <div class="nav-links">
+        <span class="nav-link active" onclick="showPage('resume')">个人简历</span>
+        <span class="nav-link" onclick="showPage('gallery')">作品照片</span>
+    </div>
+</nav>
+
+<!-- 简历页 -->
+<div id="resume-page" class="page active">
+    <!-- Hero封面 -->
+    <div class="hero">
+        <img src="web_photos/个人照片.jpg" alt="刘鹏" class="hero-avatar">
+        <div class="hero-info">
+            <h1 class="hero-name">刘 鹏</h1>
+            <div class="hero-title">BRAVE科技创始人 · 建筑机器人方向</div>
+            <p class="hero-desc">重庆大学建筑机器人硕士在读，专注建筑外墙喷涂机器人研发，拥有从0到1的创业项目经验，具备项目管理与产品开发综合能力。</p>
+        </div>
+    </div>
+
+    <!-- 简历主体 -->
+    <div class="resume-container">
+        <!-- 左侧栏 -->
+        <div class="sidebar">
+            <div class="card">
+                <div class="card-title">基本信息</div>
+                <div class="info-item"><span class="info-label">求职意向</span><span class="info-value">项目管理 / 产品经理</span></div>
+                <div class="info-item"><span class="info-label">性　　别</span><span class="info-value">男</span></div>
+                <div class="info-item"><span class="info-label">出生日期</span><span class="info-value">2002年4月</span></div>
+                <div class="info-item"><span class="info-label">现居城市</span><span class="info-value">湖南长沙</span></div>
+                <div class="info-item"><span class="info-label">籍　　贯</span><span class="info-value">四川成都</span></div>
+                <div class="info-item"><span class="info-label">电　　话</span><span class="info-value">18782176859</span></div>
+                <div class="info-item"><span class="info-label">邮　　箱</span><span class="info-value">1091810168@qq.com</span></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">专业技能</div>
+                <div class="skill-tags">
+                    <span class="skill-tag">C++</span>
+                    <span class="skill-tag">Python</span>
+                    <span class="skill-tag">HTML</span>
+                    <span class="skill-tag">JavaScript</span>
+                    <span class="skill-tag">Linux</span>
+                    <span class="skill-tag">PLC</span>
+                    <span class="skill-tag">AutoCAD</span>
+                    <span class="skill-tag">ROS2</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">语言能力</div>
+                <div class="info-item"><span class="info-label">英　语</span><span class="info-value">CET-6 529分<br>听说读写良好</span></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">证书资质</div>
+                <div class="info-item"><span class="info-label">—</span><span class="info-value">大学英语四级</span></div>
+                <div class="info-item"><span class="info-label">—</span><span class="info-value">大学英语六级</span></div>
+            </div>
+        </div>
+
+        <!-- 右侧主内容 -->
+        <div class="main-content">
+            <div class="card">
+                <div class="card-title">教育背景</div>
+                <div class="timeline-item">
+                    <div class="timeline-header">
+                        <div>
+                            <div class="timeline-title">重庆大学</div>
+                            <div class="timeline-subtitle">建筑机器人 · 硕士</div>
+                        </div>
+                        <div class="timeline-date">2024.09 - 2027.06</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-header">
+                        <div>
+                            <div class="timeline-title">重庆大学</div>
+                            <div class="timeline-subtitle">建筑工程 · 本科</div>
+                        </div>
+                        <div class="timeline-date">2020.09 - 2024.06</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">工作经历</div>
+                <div class="timeline-item">
+                    <div class="timeline-header">
+                        <div>
+                            <div class="timeline-title">重庆智能建造研究院有限公司</div>
+                            <div class="timeline-subtitle">BRAVE科技创始人（全职）</div>
+                        </div>
+                        <div class="timeline-date">2025.02 - 至今</div>
+                    </div>
+                    <div class="timeline-desc">
+                        2025年1月参加XbotPark智能建造科创训练营，任团队队长带队斩获最佳设计奖；训练营后联合5名伙伴创立BRAVE科技，成功入孵重庆智能建造研究院，专注建筑外墙喷涂机器人研发。2025年7月项目通过官方立项，获50万元种子轮投资并正式启动产品化研发。
+                        <br><br>
+                        任职期间统筹项目整体规划与团队管理，主导电控系统全流程开发，覆盖PLC开发、电控方案设计、电路调试及ROS2算法开发等工作，完整参与软硬件从0到1的研发流程；同步对接上下游合作方与行业客户，参与多场智能建造展会负责产品推介与商务对接。截至2026年6月，已带领团队完成多轮产品迭代并通过整机可行性验证。
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">项目经历</div>
+                <div class="timeline-item">
+                    <div class="timeline-header">
+                        <div>
+                            <div class="timeline-title">BRAVE外墙喷涂机器人创业项目</div>
+                            <div class="timeline-subtitle">项目创始人</div>
+                        </div>
+                        <div class="timeline-date">2025.02 - 至今</div>
+                    </div>
+                    <div class="timeline-desc">
+                        <ul>
+                            <li>联合5名核心成员组建创业团队，成功入孵重庆智能建造研究院；获批50万元种子轮投资，推动项目从概念进入正式产品研发周期</li>
+                            <li>统筹项目整体进度管理，制定分阶段研发里程碑与落地计划，带领团队完成多轮产品迭代</li>
+                            <li>牵头负责机器人电控系统全流程开发，承担上下游合作方对接工作</li>
+                            <li>参与多场智能建造行业展会，负责产品技术宣讲与意向客户对接</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-header">
+                        <div>
+                            <div class="timeline-title">成都市简阳区未来之芯一期项目部</div>
+                            <div class="timeline-subtitle">实习生</div>
+                        </div>
+                        <div class="timeline-date">2023.07 - 2023.08</div>
+                    </div>
+                    <div class="timeline-desc">
+                        在中国五冶承建的项目部进行生产实习，跟随质检员和测量员进行日常检查，负责文件整理和现场巡查工作。
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">荣誉奖项</div>
+                <div class="honor-item">
+                    <span class="honor-name">第一届中国研究生智能建造创新大赛 · 全国三等奖</span>
+                    <span class="honor-date">2025</span>
+                </div>
+                <div class="honor-item">
+                    <span class="honor-name">第六届全国大学生结构信息技术设计大赛 · 全国一等奖</span>
+                    <span class="honor-date">—</span>
+                </div>
+                <div class="honor-item">
+                    <span class="honor-name">重庆大学A类学业奖学金</span>
+                    <span class="honor-date">2025.11</span>
+                </div>
+                <div class="honor-item">
+                    <span class="honor-name">重庆大学A类学业奖学金</span>
+                    <span class="honor-date">2024.11</span>
+                </div>
+                <div class="honor-item">
+                    <span class="honor-name">XbotPark智能建造科创训练营 · 最佳设计奖</span>
+                    <span class="honor-date">2025.01</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">社会实践</div>
+                <div class="timeline-desc">
+                    <strong>创新竞赛：</strong>第二十届重庆大学大学生结构设计竞赛、第十四届全国大学生先进成图技术与产品信息建模创新大赛重庆大学选拔赛
+                    <br><br>
+                    <strong>志愿活动：</strong>重庆大学小博士工作站科技创客访校园社区志愿活动、"渝藏爱心"捐衣志愿活动、"美丽中国，绿色重大"植树节主题活动等
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 作品集页 -->
+<div id="gallery-page" class="page">
+    <div class="gallery-header">
+        <h1>照片集</h1>
+        <p>项目研发 · 团队活动 · 参赛参会</p>
+    </div>
+
+    <div class="gallery-container">
+        <!-- 项目研发 -->
+        <div class="gallery-section">
+            <h2 class="gallery-section-title">项目研发</h2>
+            <div class="photo-grid">
+                <div class="photo-card" onclick="openLightbox(0)">
+                    <img src="web_photos/实操建筑机器人.jpg" alt="实操建筑机器人">
+                    <div class="photo-name">实操建筑机器人</div>
+                </div>
+                <div class="photo-card" onclick="openLightbox(1)">
+                    <img src="web_photos/产品设计图.jpg" alt="产品设计图">
+                    <div class="photo-name">产品设计图</div>
+                </div>
+                <div class="photo-card" onclick="openLightbox(2)">
+                    <img src="web_photos/设备测试照.jpg" alt="设备测试照">
+                    <div class="photo-name">设备测试照</div>
+                </div>
+                <div class="photo-card" onclick="openLightbox(3)">
+                    <img src="web_photos/项目介绍.jpg" alt="项目介绍">
+                    <div class="photo-name">项目介绍</div>
+                </div>
+                <div class="photo-card" onclick="openLightbox(4)">
+                    <img src="web_photos/项目介绍2.jpg" alt="项目介绍2">
+                    <div class="photo-name">项目介绍2</div>
+                </div>
+                <div class="photo-card" onclick="openLightbox(5)">
+                    <img src="web_photos/项目介绍3.jpg" alt="项目介绍3">
+                    <div class="photo-name">项目介绍3</div>
+                </div>
+                <div class="photo-card" onclick="openLightbox(6)">
+                    <img src="web_photos/项目研发讨论.jpg" alt="项目研发讨论">
+                    <div class="photo-name">项目研发讨论</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 团队活动 -->
+        <div class="gallery-section">
+            <h2 class="gallery-section-title">团队活动</h2>
+            <div class="photo-grid">
+                <div class="photo-card" onclick="openLightbox(7)">
+                    <img src="web_photos/团队工作照.jpg" alt="团队工作照">
+                    <div class="photo-name">团队工作照</div>
+                </div>
+                <div class="photo-card" onclick="openLightbox(8)">
+                    <img src="web_photos/团队工作照2.jpg" alt="团队工作照2">
+                    <div class="photo-name">团队工作照2</div>
+                </div>
+                <div class="photo-card" onclick="openLightbox(9)">
+                    <img src="web_photos/团建照.jpg" alt="团建照">
+                    <div class="photo-name">团建照</div>
+                </div>
+                <div class="photo-card" onclick="openLightbox(10)">
+                    <img src="web_photos/与创业前辈合照.jpg" alt="与创业前辈合照">
+                    <div class="photo-name">与创业前辈合照</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 参赛参会 -->
+        <div class="gallery-section">
+            <h2 class="gallery-section-title">参赛参会</h2>
+            <div class="photo-grid">
+                <div class="photo-card" onclick="openLightbox(11)">
+                    <img src="web_photos/全国建筑机器人大赛参赛照.jpg" alt="全国建筑机器人大赛参赛照">
+                    <div class="photo-name">全国建筑机器人大赛参赛照</div>
+                </div>
+                <div class="photo-card" onclick="openLightbox(12)">
+                    <img src="web_photos/训练营汇报照.jpg" alt="训练营汇报照">
+                    <div class="photo-name">训练营汇报照</div>
+                </div>
+                <div class="photo-card" onclick="openLightbox(13)">
+                    <img src="web_photos/2025年创业者大会合照.jpg" alt="2025年创业者大会合照">
+                    <div class="photo-name">2025年创业者大会合照</div>
+                </div>
+                <div class="photo-card" onclick="openLightbox(14)">
+                    <img src="web_photos/2025年创业者大会合照2.jpg" alt="2025年创业者大会合照2">
+                    <div class="photo-name">2025年创业者大会合照2</div>
+                </div>
+                <div class="photo-card" onclick="openLightbox(15)">
+                    <img src="web_photos/具身智能研讨会交流分享.jpg" alt="具身智能研讨会交流分享">
+                    <div class="photo-name">具身智能研讨会交流分享</div>
+                </div>
+                <div class="photo-card" onclick="openLightbox(16)">
+                    <img src="web_photos/具身智能研讨会交流分享2.jpg" alt="具身智能研讨会交流分享2">
+                    <div class="photo-name">具身智能研讨会交流分享2</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 灯箱 -->
+<div id="lightbox" class="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <button class="lightbox-nav lightbox-prev" onclick="prevPhoto()">&#8249;</button>
+    <div class="lightbox-content">
+        <img id="lightbox-img" src="" alt="">
+        <div id="lightbox-caption" class="lightbox-caption"></div>
+    </div>
+    <button class="lightbox-nav lightbox-next" onclick="nextPhoto()">&#8250;</button>
+</div>
+
+<!-- 页脚 -->
+<div class="footer">
+    <p>联系电话：18782176859 &nbsp;|&nbsp; 邮箱：1091810168@qq.com</p>
+    <p style="margin-top:8px; opacity:0.6;">© 2026 刘鹏 个人简历作品集</p>
+</div>
+
+<script>
+    // 照片数据
+    const photos = [
+        { src: 'web_photos/实操建筑机器人.jpg', name: '实操建筑机器人' },
+        { src: 'web_photos/产品设计图.jpg', name: '产品设计图' },
+        { src: 'web_photos/设备测试照.jpg', name: '设备测试照' },
+        { src: 'web_photos/项目介绍.jpg', name: '项目介绍' },
+        { src: 'web_photos/项目介绍2.jpg', name: '项目介绍2' },
+        { src: 'web_photos/项目介绍3.jpg', name: '项目介绍3' },
+        { src: 'web_photos/项目研发讨论.jpg', name: '项目研发讨论' },
+        { src: 'web_photos/团队工作照.jpg', name: '团队工作照' },
+        { src: 'web_photos/团队工作照2.jpg', name: '团队工作照2' },
+        { src: 'web_photos/团建照.jpg', name: '团建照' },
+        { src: 'web_photos/与创业前辈合照.jpg', name: '与创业前辈合照' },
+        { src: 'web_photos/全国建筑机器人大赛参赛照.jpg', name: '全国建筑机器人大赛参赛照' },
+        { src: 'web_photos/训练营汇报照.jpg', name: '训练营汇报照' },
+        { src: 'web_photos/2025年创业者大会合照.jpg', name: '2025年创业者大会合照' },
+        { src: 'web_photos/2025年创业者大会合照2.jpg', name: '2025年创业者大会合照2' },
+        { src: 'web_photos/具身智能研讨会交流分享.jpg', name: '具身智能研讨会交流分享' },
+        { src: 'web_photos/具身智能研讨会交流分享2.jpg', name: '具身智能研讨会交流分享2' }
+    ];
+
+    let currentPhotoIndex = 0;
+
+    // 页面切换
+    function showPage(pageName) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+
+        document.getElementById(pageName + '-page').classList.add('active');
+        event.target.classList.add('active');
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 灯箱功能
+    function openLightbox(index) {
+        currentPhotoIndex = index;
+        updateLightbox();
+        document.getElementById('lightbox').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    function updateLightbox() {
+        document.getElementById('lightbox-img').src = photos[currentPhotoIndex].src;
+        document.getElementById('lightbox-caption').textContent = photos[currentPhotoIndex].name;
+    }
+
+    function nextPhoto() {
+        currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+        updateLightbox();
+    }
+
+    function prevPhoto() {
+        currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+        updateLightbox();
+    }
+
+    // 键盘控制
+    document.addEventListener('keydown', function(e) {
+        if (document.getElementById('lightbox').classList.contains('active')) {
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowRight') nextPhoto();
+            if (e.key === 'ArrowLeft') prevPhoto();
+        }
+    });
+
+    // 点击背景关闭灯箱
+    document.getElementById('lightbox').addEventListener('click', function(e) {
+        if (e.target === this) closeLightbox();
+    });
+</script>
+
+</body>
+</html>
