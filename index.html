@@ -338,19 +338,39 @@
             border-left: 4px solid #1e3a5f;
         }
 
-        .photo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+        /* ========== 图片轮播滚动（改动区） ========== */
+        .scroll-container {
+            overflow: hidden;
+            width: 100%;
         }
 
+        .scroll-track {
+            display: flex;
+            gap: 20px;
+            width: fit-content;
+            animation: scroll-left 35s linear infinite;
+        }
+
+        /* 鼠标悬浮暂停滚动 */
+        .gallery-section:hover .scroll-track {
+            animation-play-state: paused;
+        }
+
+        @keyframes scroll-left {
+            0%   { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* 卡片固定宽度以保证滚动连贯 */
         .photo-card {
+            flex-shrink: 0;
+            width: 280px;
             background: #fff;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 2px 12px rgba(0,0,0,0.08);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
 
         .photo-card:hover {
@@ -372,6 +392,7 @@
             color: #333;
             text-align: center;
         }
+        /* ========== 轮播样式结束 ========== */
 
         /* 灯箱 */
         .lightbox {
@@ -493,9 +514,8 @@
                 grid-template-columns: 1fr;
             }
 
-            .photo-grid {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-                gap: 12px;
+            .photo-card {
+                width: 200px;
             }
 
             .photo-card img {
@@ -705,7 +725,8 @@
         <!-- 项目研发 -->
         <div class="gallery-section">
             <h2 class="gallery-section-title">项目研发</h2>
-            <div class="photo-grid">
+            <div class="scroll-container">
+            <div class="scroll-track">
                 <div class="photo-card" onclick="openLightbox(0)">
                     <img src="web_photos/实操建筑机器人.jpg" alt="实操建筑机器人">
                     <div class="photo-name">实操建筑机器人</div>
@@ -735,12 +756,14 @@
                     <div class="photo-name">项目研发讨论</div>
                 </div>
             </div>
+            </div>
         </div>
 
         <!-- 团队活动 -->
         <div class="gallery-section">
             <h2 class="gallery-section-title">团队活动</h2>
-            <div class="photo-grid">
+            <div class="scroll-container">
+            <div class="scroll-track">
                 <div class="photo-card" onclick="openLightbox(7)">
                     <img src="web_photos/团队工作照.jpg" alt="团队工作照">
                     <div class="photo-name">团队工作照</div>
@@ -758,12 +781,14 @@
                     <div class="photo-name">与创业前辈合照</div>
                 </div>
             </div>
+            </div>
         </div>
 
         <!-- 参赛参会 -->
         <div class="gallery-section">
             <h2 class="gallery-section-title">参赛参会</h2>
-            <div class="photo-grid">
+            <div class="scroll-container">
+            <div class="scroll-track">
                 <div class="photo-card" onclick="openLightbox(11)">
                     <img src="web_photos/全国建筑机器人大赛参赛照.jpg" alt="全国建筑机器人大赛参赛照">
                     <div class="photo-name">全国建筑机器人大赛参赛照</div>
@@ -788,6 +813,7 @@
                     <img src="web_photos/具身智能研讨会交流分享2.jpg" alt="具身智能研讨会交流分享2">
                     <div class="photo-name">具身智能研讨会交流分享2</div>
                 </div>
+            </div>
             </div>
         </div>
     </div>
@@ -885,6 +911,14 @@
     // 点击背景关闭灯箱
     document.getElementById('lightbox').addEventListener('click', function(e) {
         if (e.target === this) closeLightbox();
+    });
+
+    // ===== 轮播：克隆卡片实现无缝循环滚动 =====
+    document.querySelectorAll('.scroll-track').forEach(track => {
+        const cards = [...track.children];
+        cards.forEach(card => {
+            track.appendChild(card.cloneNode(true));
+        });
     });
 </script>
 
