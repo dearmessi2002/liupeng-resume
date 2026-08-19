@@ -348,17 +348,15 @@
             display: flex;
             gap: 20px;
             width: fit-content;
-            animation: scroll-left 35s linear infinite;
+            cursor: grab;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: pan-y;
+            will-change: transform;
         }
 
-        /* 鼠标悬浮暂停滚动 */
-        .gallery-section:hover .scroll-track {
-            animation-play-state: paused;
-        }
-
-        @keyframes scroll-left {
-            0%   { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+        .scroll-track.dragging {
+            cursor: grabbing;
         }
 
         /* 卡片固定宽度以保证滚动连贯 */
@@ -383,6 +381,7 @@
             height: 220px;
             object-fit: cover;
             display: block;
+            -webkit-user-drag: none;
         }
 
         .photo-name {
@@ -924,13 +923,116 @@
         if (e.target === this) closeLightbox();
     });
 
-    // ===== 轮播：克隆卡片实现无缝循环滚动 =====
+    // ===== 轮播：克隆卡片实现无缝循环 + 自动播放 + 手动拖动 =====
     document.querySelectorAll('.scroll-track').forEach(track => {
         const cards = [...track.children];
         cards.forEach(card => {
             track.appendChild(card.cloneNode(true));
         });
+        initCarousel(track);
     });
+
+    function initCarousel(track) {
+        const originalCount = track.children.length / 2; // 原始卡片数（克隆后翻倍）
+        let loopWidth = 0;   // 一轮内容的像素宽度
+        let offset = 0;      // 当前滚动位移
+        let dragging = false;
+        let hovering = false;
+        let moved = false;
+        let startX = 0;
+        let startOffset = 0;
+        let lastTime = null;
+
+        // 测量一轮宽度（页面显示后才能测得，隐藏时返回 false）
+        function measure() {
+            if (track.children.length >= 2) {
+                const first = track.children[0].getBoundingClientRect();
+                const second = track.children[1].getBoundingClientRect();
+                const stride = second.left - first.left; // 单张卡片 + 间距
+                if (stride > 0) {
+                    loopWidth = stride * originalCount;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function applyTransform() {
+            track.style.transform = 'translateX(' + (-offset) + 'px)';
+        }
+
+        function step(now) {
+            if (loopWidth === 0) measure();
+            if (lastTime === null) lastTime = now;
+            const dt = (now - lastTime) / 1000;
+            lastTime = now;
+
+            if (loopWidth > 0 && !dragging && !hovering) {
+                offset += (loopWidth / 35) * dt; // 每轮 35 秒，与原动画一致
+                if (offset >= loopWidth) offset -= loopWidth;
+                applyTransform();
+            }
+            requestAnimationFrame(step);
+        }
+
+        track.addEventListener('pointerdown', function (e) {
+            if (loopWidth === 0) measure();
+            if (loopWidth === 0) return;
+            dragging = true;
+            moved = false;
+            startX = e.clientX;
+            startOffset = offset;
+            track.setPointerCapture(e.pointerId);
+            track.classList.add('dragging');
+        });
+
+        track.addEventListener('pointermove', function (e) {
+            if (!dragging) return;
+            const dx = e.clientX - startX;
+            if (Math.abs(dx) > 5) moved = true;
+            let next = startOffset - dx;
+            next = ((next % loopWidth) + loopWidth) % loopWidth;
+            offset = next;
+            applyTransform();
+        });
+
+        function endDrag() {
+            if (!dragging) return;
+            dragging = false;
+            track.classList.remove('dragging');
+            lastTime = null;
+        }
+        track.addEventListener('pointerup', endDrag);
+        track.addEventListener('pointercancel', endDrag);
+
+        // 拖动后阻止误触发的点击（避免拖动时打开灯箱）
+        track.addEventListener('click', function (e) {
+            if (moved) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+        }, true);
+
+        // 鼠标悬浮暂停 / 移出继续
+        track.addEventListener('mouseenter', function () {
+            hovering = true;
+            lastTime = null;
+        });
+        track.addEventListener('mouseleave', function () {
+            hovering = false;
+            lastTime = null;
+        });
+
+        // 窗口尺寸变化时重新测量
+        window.addEventListener('resize', function () {
+            loopWidth = 0;
+            offset = 0;
+            applyTransform();
+            lastTime = null;
+        });
+
+        requestAnimationFrame(step);
+    }
 </script>
 
 </body>
