@@ -585,6 +585,19 @@
                 font-size: 32px;
             }
         }
+
+        /* ===== 电脑端（≥769px）：简历与照片集同页滚动呈现 ===== */
+        @media (min-width: 769px) {
+            .page {
+                display: block !important;   /* 两个板块同时显示 */
+                animation: none;
+                scroll-margin-top: 72px;     /* 锚点定位时避开固定导航栏 */
+            }
+
+            #gallery-page {
+                padding-top: 0;              /* 照片板块紧随简历内容，去掉顶部留白 */
+            }
+        }
     </style>
 </head>
 <body>
@@ -593,8 +606,8 @@
 <nav class="navbar">
     <div class="logo">刘鹏 · 个人主页</div>
     <div class="nav-links">
-        <span class="nav-link active" onclick="showPage('resume')">个人简历</span>
-        <span class="nav-link" onclick="showPage('gallery')">照片</span>
+        <span class="nav-link active" data-page="resume" onclick="showPage('resume')">个人简历</span>
+        <span class="nav-link" data-page="gallery" onclick="showPage('gallery')">照片</span>
     </div>
 </nav>
 
@@ -937,8 +950,14 @@
 
     let currentPhotoIndex = 0;
 
-    // 页面切换
+    // 页面切换：手机端分页切换；电脑端同一页面内平滑滚动定位
     function showPage(pageName) {
+        if (window.matchMedia('(min-width: 769px)').matches) {
+            document.getElementById(pageName + '-page').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            event.target.classList.add('active');
+            return;
+        }
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
 
@@ -947,6 +966,21 @@
 
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    // 电脑端：滚动时自动高亮当前所在板块
+    (function initDesktopNav() {
+        const mq = window.matchMedia('(min-width: 769px)');
+        function updateNav() {
+            if (!mq.matches) return;
+            const galleryTop = document.getElementById('gallery-page').getBoundingClientRect().top;
+            const isResume = galleryTop > 120; // 照片板块尚未进入视口上部 → 当前在简历区
+            document.querySelectorAll('.nav-link').forEach(l => {
+                l.classList.toggle('active', isResume === (l.getAttribute('data-page') === 'resume'));
+            });
+        }
+        window.addEventListener('scroll', function () { requestAnimationFrame(updateNav); }, { passive: true });
+        updateNav();
+    })();
 
     // 灯箱功能
     function openLightbox(index) {
