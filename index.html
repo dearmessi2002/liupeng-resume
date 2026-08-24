@@ -280,6 +280,41 @@
             margin-bottom: 6px;
         }
 
+        /* 项目经历小节 */
+        .project-section {
+            margin-bottom: 16px;
+        }
+
+        .project-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .project-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e3a5f;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .project-section-title::before {
+            content: '';
+            width: 4px;
+            height: 13px;
+            background: #1e3a5f;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .project-section p {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.9;
+            text-align: justify;
+        }
+
         .honor-item {
             display: flex;
             justify-content: space-between;
@@ -678,12 +713,22 @@
                         <div class="timeline-date">2025.02 - 至今</div>
                     </div>
                     <div class="timeline-desc">
-                        <ul>
-                            <li>联合5名核心成员组建创业团队，成功入孵重庆智能建造研究院；获批50万元种子轮投资，推动项目从概念进入正式产品研发周期</li>
-                            <li>统筹项目整体进度管理，制定分阶段研发里程碑与落地计划，带领团队完成多轮产品迭代</li>
-                            <li>牵头负责机器人电控系统全流程开发，承担上下游合作方对接工作</li>
-                            <li>参与多场智能建造行业展会，负责产品技术宣讲与意向客户对接</li>
-                        </ul>
+                        <div class="project-section">
+                            <div class="project-section-title">团队组建与融资进展</div>
+                            <p>联合5名核心成员组建创业团队，明确分工与愿景，成功入孵重庆智能建造研究院（省级孵化平台），获得场地、导师及产业资源支持；主导完成项目预探索和原型验证，获50万元种子轮投资，推动项目从概念构思迈入正式产品研发周期，完成技术可行性验证及首版样机规划。</p>
+                        </div>
+                        <div class="project-section">
+                            <div class="project-section-title">研发进度与迭代管理</div>
+                            <p>统筹项目整体研发进度，制定分阶段里程碑（含需求分析、原理样机、工程样机等节点）及可落地的实施计划；通过敏捷迭代方式，带领团队在10个月内完成多轮产品软硬件联调与优化，有效把控研发节奏，确保关键指标按节点达成。</p>
+                        </div>
+                        <div class="project-section">
+                            <div class="project-section-title">技术牵头与外部协同</div>
+                            <p>牵头负责机器人电控系统全流程开发，涵盖硬件架构设计、嵌入式软件编程、传感器融合及系统集成调试；同时承担上下游合作方（包括核心部件供应商、代工厂、技术方案提供商）的对接工作，协调技术参数、交期与质量要求，保障研发链与供应链顺利衔接。</p>
+                        </div>
+                        <div class="project-section">
+                            <div class="project-section-title">行业展会与技术推广</div>
+                            <p>多次代表团队参与中国智能建造博览会等核心行业展会，现场负责产品功能演示与技术宣讲，向潜在客户、投资方及高校专家清晰传递技术优势；同时主动收集市场需求，对接意向客户20余家，为后续商务合作和产品迭代方向提供了真实反馈。</p>
+                        </div>
                     </div>
                 </div>
                 <div class="timeline-item">
