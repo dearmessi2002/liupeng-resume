@@ -12,41 +12,60 @@
         }
 
         :root {
-            --bg: #08080a;                    /* 页面底色：近黑 */
-            --bg-2: #0d0d10;
-            --surface: #131317;               /* 卡片面：深灰 */
-            --surface-2: #191920;
-            --line: rgba(255, 255, 255, 0.09);
-            --line-strong: rgba(255, 255, 255, 0.26);
-            --text: #f2f2f4;                  /* 主文字：近白 */
-            --text-2: #a5a5ad;                /* 次要文字：中灰 */
-            --text-3: #6b6b73;                /* 弱文字：深灰 */
+            --bg: #0e0e13;                    /* 页面底色 */
+            --bg-2: #14141a;
+            --surface: #1c1c23;               /* 卡片面：明显亮于底色 */
+            --surface-2: #24242d;
+            --surface-3: #2c2c36;
+            --line: rgba(255, 255, 255, 0.12);
+            --line-strong: rgba(255, 255, 255, 0.34);
+            --text: #f5f5f7;                  /* 主文字：近白 */
+            --text-2: #b2b2bd;                /* 次要文字：浅灰 */
+            --text-3: #7e7e8a;                /* 弱文字：中灰 */
             --white: #ffffff;
-            --glow: rgba(255, 255, 255, 0.18);
-            --card-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
-            --card-shadow-hover: 0 18px 44px rgba(0, 0, 0, 0.7);
+            --glow: rgba(255, 255, 255, 0.2);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+            --card-shadow-hover: 0 26px 62px rgba(0, 0, 0, 0.72);
             --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
             /* 兼容旧变量名（统一映射为白/灰） */
             --primary: #ffffff;
-            --primary-2: #c9c9d1;
-            --primary-3: #8e8e97;
-            --accent: #d8d8de;
-            --accent-2: #9a9aa2;
+            --primary-2: #d2d2da;
+            --primary-3: #9a9aa6;
+            --accent: #e2e2e8;
+            --accent-2: #a8a8b4;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
             color: var(--text);
             background-color: var(--bg);
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
-                radial-gradient(ellipse 90% 55% at 50% 0%, rgba(255, 255, 255, 0.055), transparent 70%);
-            background-size: 46px 46px, 46px 46px, 100% 100%;
+            background-image: radial-gradient(ellipse 95% 60% at 50% 0%, rgba(255, 255, 255, 0.075), transparent 72%);
             background-attachment: fixed;
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* 缓慢流动的科技网格 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.038) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.038) 1px, transparent 1px);
+            background-size: 46px 46px;
+            animation: gridDrift 26s linear infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes gridDrift {
+            from { background-position: 0 0, 0 0; }
+            to { background-position: 46px 46px, 46px 46px; }
         }
 
         /* 顶部滚动进度条 */
@@ -225,6 +244,42 @@
             100% { left: 125%; }
         }
 
+        /* Hero 漂浮光点 */
+        .hero-orbs {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .hero-orbs span {
+            position: absolute;
+            bottom: -12px;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.95);
+            animation: orbRise 13s linear infinite;
+        }
+
+        .hero-orbs span:nth-child(1) { left: 9%;  animation-duration: 13s; animation-delay: 0s; }
+        .hero-orbs span:nth-child(2) { left: 28%; animation-duration: 18s; animation-delay: 2.5s; }
+        .hero-orbs span:nth-child(3) { left: 52%; animation-duration: 15s; animation-delay: 5s; }
+        .hero-orbs span:nth-child(4) { left: 74%; animation-duration: 20s; animation-delay: 1.2s; }
+        .hero-orbs span:nth-child(5) { left: 90%; animation-duration: 16s; animation-delay: 3.8s; }
+
+        @keyframes orbRise {
+            0% { transform: translateY(0) scale(0.7); opacity: 0; }
+            14% { opacity: 0.9; }
+            80% { opacity: 0.55; }
+            100% { transform: translateY(-300px) scale(1.15); opacity: 0; }
+        }
+
         .hero-avatar, .hero-info {
             position: relative;
             z-index: 1;
@@ -304,14 +359,18 @@
         }
 
         .card {
-            background: var(--surface);
+            position: relative;
+            background-color: var(--surface);
+            background-image:
+                radial-gradient(340px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 255, 255, 0.09), transparent 62%),
+                linear-gradient(158deg, #25252f 0%, #1e1e25 48%, #191920 100%);
             border-radius: 4px;
             padding: 26px 24px;
             border: 1px solid var(--line);
-            box-shadow: var(--card-shadow);
-            transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
-            position: relative;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09), var(--card-shadow);
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease, border-color 0.4s ease;
             overflow: hidden;
+            will-change: transform;
         }
 
         /* 顶部高光条（悬停显现） */
@@ -346,9 +405,9 @@
         }
 
         .card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-5px);
             border-color: var(--line-strong);
-            box-shadow: var(--card-shadow-hover);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), var(--card-shadow-hover), 0 0 0 1px rgba(255, 255, 255, 0.07);
         }
 
         .card:hover::after {
@@ -402,7 +461,7 @@
         }
 
         .skill-tag {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.045);
             color: var(--text-2);
             padding: 5px 13px;
             border-radius: 2px;
@@ -411,16 +470,16 @@
             font-weight: 500;
             letter-spacing: 0.5px;
             font-family: var(--mono);
-            transition: all 0.3s ease;
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
             cursor: default;
         }
 
         .skill-tag:hover {
             background: var(--white);
-            color: #08080a;
+            color: #101015;
             border-color: var(--white);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px) scale(1.07);
+            box-shadow: 0 8px 22px rgba(255, 255, 255, 0.26);
         }
 
         /* 右侧主内容 */
@@ -452,6 +511,13 @@
             border-radius: 50%;
             box-shadow: 0 0 0 3px rgba(255,255,255,0.12);
             animation: nodePulse 2.6s ease-in-out infinite;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .timeline-item:hover::before {
+            animation: none;
+            transform: scale(1.5);
+            box-shadow: 0 0 0 4px rgba(255,255,255,0.24), 0 0 22px rgba(255,255,255,0.8);
         }
 
         @keyframes nodePulse {
@@ -545,9 +611,16 @@
         .honor-item {
             display: flex;
             justify-content: space-between;
-            padding: 9px 0;
+            padding: 9px 10px;
             border-bottom: 1px solid var(--line);
+            border-radius: 3px;
             font-size: 13.5px;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .honor-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(3px);
         }
 
         .honor-item:last-child {
@@ -608,6 +681,20 @@
             font-family: var(--mono);
         }
 
+        /* 照片集头部扫描光带 */
+        .gallery-header::after {
+            content: '';
+            position: absolute;
+            top: -60%;
+            left: -40%;
+            width: 20%;
+            height: 220%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+            transform: rotate(16deg);
+            animation: scanSweep 9s linear infinite;
+            pointer-events: none;
+        }
+
         .gallery-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -651,21 +738,41 @@
 
         /* 卡片固定宽度以保证滚动连贯 */
         .photo-card {
+            position: relative;
             flex-shrink: 0;
             width: 280px;
-            background: var(--surface);
+            background-color: var(--surface);
+            background-image: linear-gradient(158deg, #25252f 0%, #1c1c23 55%, #191920 100%);
             border-radius: 4px;
             border: 1px solid var(--line);
             overflow: hidden;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 6px 22px rgba(0, 0, 0, 0.5);
             cursor: pointer;
-            transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+            transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+        }
+
+        /* 悬停时斜向扫光 */
+        .photo-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -75%;
+            width: 45%;
+            height: calc(100% - 42px);
+            background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+            transform: skewX(-16deg);
+            transition: left 0.7s ease;
+            pointer-events: none;
+        }
+
+        .photo-card:hover::after {
+            left: 130%;
         }
 
         .photo-card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-9px);
             border-color: var(--line-strong);
-            box-shadow: 0 20px 44px rgba(0, 0, 0, 0.75);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 22px 48px rgba(0, 0, 0, 0.78);
         }
 
         .photo-card img {
@@ -884,7 +991,7 @@
 
         /* 尊重系统"减少动态效果"设置 */
         @media (prefers-reduced-motion: reduce) {
-            .hero::after, .hero-avatar, .timeline-item::before {
+            body::before, .hero::after, .gallery-header::after, .hero-avatar, .hero-orbs span, .timeline-item::before {
                 animation: none;
             }
             .reveal {
@@ -913,6 +1020,7 @@
 <div id="resume-page" class="page active">
     <!-- Hero封面 -->
     <div class="hero">
+        <div class="hero-orbs" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
         <img src="web_photos/个人照片.jpg" alt="刘鹏" class="hero-avatar">
         <div class="hero-info">
             <h1 class="hero-name">刘 鹏</h1>
@@ -1301,19 +1409,72 @@
         updateNav();
     })();
 
-    // 入场动画：元素滚动进入视口时淡入上浮（动画结束后移除样式，避免影响 hover 效果）
+    // 入场动画：元素滚动进入视口时淡入上浮（错落延迟，动画结束后移除样式，避免影响 hover）
     (function initReveal() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         const els = document.querySelectorAll('.hero, .card, .gallery-header, .gallery-section');
         const io = new IntersectionObserver(function (entries) {
             entries.forEach(en => {
                 if (en.isIntersecting) {
                     en.target.classList.add('visible');
-                    setTimeout(function () { en.target.classList.remove('reveal'); }, 700);
+                    setTimeout(function () {
+                        en.target.classList.remove('reveal');
+                        en.target.style.transitionDelay = '';
+                    }, 820);
                     io.unobserve(en.target);
                 }
             });
         }, { threshold: 0.1 });
-        els.forEach(el => { el.classList.add('reveal'); io.observe(el); });
+        els.forEach(function (el, i) {
+            el.classList.add('reveal');
+            el.style.transitionDelay = ((i % 4) * 70) + 'ms';
+            io.observe(el);
+        });
+    })();
+
+    // 卡片：鼠标跟随高光 + 轻微 3D 倾斜
+    (function initCardFX() {
+        const fine = window.matchMedia('(hover: hover) and (pointer: fine)');
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+        if (!fine.matches || reduce.matches) return;
+        document.querySelectorAll('.card').forEach(function (card) {
+            card.addEventListener('mousemove', function (e) {
+                const r = card.getBoundingClientRect();
+                const x = e.clientX - r.left;
+                const y = e.clientY - r.top;
+                card.style.setProperty('--mx', x + 'px');
+                card.style.setProperty('--my', y + 'px');
+                const rx = ((y / r.height) - 0.5) * -3.4;
+                const ry = ((x / r.width) - 0.5) * 3.4;
+                card.style.transform = 'perspective(900px) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg) translateY(-5px)';
+            });
+            card.addEventListener('mouseleave', function () {
+                card.style.transform = '';
+                card.style.removeProperty('--mx');
+                card.style.removeProperty('--my');
+            });
+        });
+    })();
+
+    // Hero 内容轻微视差（随页面滚动位移）
+    (function initHeroParallax() {
+        const info = document.querySelector('.hero-info');
+        const avatar = document.querySelector('.hero-avatar');
+        if (!info) return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        let ticking = false;
+        window.addEventListener('scroll', function () {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(function () {
+                const y = window.scrollY;
+                if (y < window.innerHeight * 1.3) {
+                    info.style.transform = 'translateY(' + (y * 0.09).toFixed(1) + 'px)';
+                    if (avatar) avatar.style.transform = 'translateY(' + (y * 0.05).toFixed(1) + 'px)';
+                }
+                ticking = false;
+            });
+        }, { passive: true });
     })();
 
     // 导航栏滚动阴影
