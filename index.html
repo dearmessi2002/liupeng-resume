@@ -66,13 +66,20 @@
             50% { opacity: 1; transform: translate3d(0, -16px, 0) scale(1.05); }
         }
 
-        /* L2/L3 零散 3D 几何体画布（立方体 / 球体 / 多面体，自主移动 + 碰撞交互） */
-        #bgShapes {
+        /* L2/L3 深空科技场：双层景深几何体（远景虚化 + 近景清晰带辉光） */
+        #bgShapes,
+        #bgShapesFar {
             position: absolute;
             inset: 0;
             width: 100%;
             height: 100%;
             display: block;
+        }
+
+        /* 远景层：虚化压暗 → 制造景深 */
+        #bgShapesFar {
+            filter: blur(1.8px);
+            opacity: 0.6;
         }
 
         /* L4 星点粒子层（明暗闪烁） */
@@ -1036,6 +1043,10 @@
                 display: none;
             }
 
+            #bgShapesFar {
+                display: none;
+            }
+
             html::after {
                 opacity: 0.45;
             }
@@ -1135,8 +1146,9 @@
 </head>
 <body>
 
-<!-- 背景特效层（3D 几何体 + 光束 + 鼠标环境光） -->
+<!-- 背景特效层（深空几何体双层 + 光束 + 鼠标环境光） -->
 <div class="bg-fx" aria-hidden="true">
+    <canvas id="bgShapesFar"></canvas>
     <canvas id="bgShapes"></canvas>
     <div class="bg-beam"></div>
     <div class="bg-glow" id="bgGlow"></div>
@@ -1703,22 +1715,52 @@
         }, { passive: true });
     })();
 
-    // 背景 3D 几何体：自主漂移 + 相互碰撞 + 鼠标碰撞交互
+    // ===== 背景：深空科技场（双层景深几何体 + 柔场交互）=====
     (function initBgShapes() {
-        const canvas = document.getElementById('bgShapes');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const nearCanvas = document.getElementById('bgShapes');
+        const farCanvas = document.getElementById('bgShapesFar');
+        if (!nearCanvas) return;
 
-        // ---- 几何体线框定义 ----
-        const CUBE_V = [[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]];
-        const CUBE_E = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
-        const OCTA_V = [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
-        const OCTA_E = [[0,2],[0,3],[0,4],[0,5],[1,2],[1,3],[1,4],[1,5]];
-        const TETRA_V = [[1,1,1],[1,-1,-1],[-1,1,-1],[-1,-1,1]];
-        const TETRA_E = [[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]];
+        // ---------- 几何网格生成 ----------
+        const PHI = (1 + Math.sqrt(5)) / 2;
+        const INV = 1 / PHI;
+        function dist3(a, b) { return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]); }
 
-        function sphereMesh(n) {
+        // 按最短边长自动连棱（适用于所有正多面体）
+        function autoEdges(verts) {
+            let minD = Infinity;
+            for (let i = 0; i < verts.length; i++) {
+                for (let j = i + 1; j < verts.length; j++) {
+                    const d = dist3(verts[i], verts[j]);
+                    if (d < minD) minD = d;
+                }
+            }
+            const edges = [];
+            for (let i = 0; i < verts.length; i++) {
+                for (let j = i + 1; j < verts.length; j++) {
+                    if (dist3(verts[i], verts[j]) < minD * 1.06) edges.push([i, j]);
+                }
+            }
+            return edges;
+        }
+
+        const ICO_V = [
+            [-1, PHI, 0], [1, PHI, 0], [-1, -PHI, 0], [1, -PHI, 0],
+            [0, -1, PHI], [0, 1, PHI], [0, -1, -PHI], [0, 1, -PHI],
+            [PHI, 0, -1], [PHI, 0, 1], [-PHI, 0, -1], [-PHI, 0, 1]
+        ];
+        const DODE_V = [
+            [1, 1, 1], [1, 1, -1], [1, -1, 1], [1, -1, -1],
+            [-1, 1, 1], [-1, 1, -1], [-1, -1, 1], [-1, -1, -1],
+            [0, INV, PHI], [0, INV, -PHI], [0, -INV, PHI], [0, -INV, -PHI],
+            [INV, PHI, 0], [INV, -PHI, 0], [-INV, PHI, 0], [-INV, -PHI, 0],
+            [PHI, 0, INV], [PHI, 0, -INV], [-PHI, 0, INV], [-PHI, 0, -INV]
+        ];
+        const CUBE_V = [[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1], [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]];
+        const OCTA_V = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
+
+        // 精密球体（三轴经纬环）
+        function ringSphere(n) {
             const verts = [], edges = [];
             for (let r = 0; r < 3; r++) {
                 const start = verts.length;
@@ -1736,59 +1778,21 @@
         }
 
         const MESHES = [
-            { v: CUBE_V, e: CUBE_E },
-            { v: OCTA_V, e: OCTA_E },
-            { v: TETRA_V, e: TETRA_E },
-            sphereMesh(14)
+            { v: ICO_V, e: autoEdges(ICO_V) },      // 二十面体
+            { v: DODE_V, e: autoEdges(DODE_V) },    // 十二面体
+            { v: CUBE_V, e: autoEdges(CUBE_V) },    // 立方体
+            { v: OCTA_V, e: autoEdges(OCTA_V) },    // 八面体
+            ringSphere(18)                          // 精密球体
         ];
 
-        let W = 0, H = 0, DPR = 1, items = [], raf = null, last = 0;
-        const mouse = { x: -9999, y: -9999, active: false, r: 76 };
+        // ---------- 共享状态 ----------
+        const mouse = { x: -9999, y: -9999, active: false, r: 130 };
+        let W = window.innerWidth, H = window.innerHeight;
+        let raf = null, last = 0;
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
-        function countFor() {
-            return window.matchMedia('(max-width: 768px)').matches ? 16 : 40;
-        }
-
-        function resize() {
-            DPR = Math.min(window.devicePixelRatio || 1, 2);
-            W = window.innerWidth;
-            H = window.innerHeight;
-            canvas.width = Math.floor(W * DPR);
-            canvas.height = Math.floor(H * DPR);
-            canvas.style.width = W + 'px';
-            canvas.style.height = H + 'px';
-            ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-        }
-
-        function spawn(count) {
-            items = [];
-            for (let i = 0; i < count; i++) {
-                const mesh = MESHES[i % MESHES.length];
-                const size = 13 + Math.random() * 33;              // 大小不一
-                const shade = 104 + Math.floor(Math.random() * 112); // 灰阶明暗不一
-                items.push({
-                    v: mesh.v,
-                    e: mesh.e,
-                    x: Math.random() * W,
-                    y: Math.random() * H,
-                    size: size,
-                    r: size * 1.05,
-                    vx: (Math.random() - 0.5) * 0.3,
-                    vy: (Math.random() - 0.5) * 0.3,
-                    rx: Math.random() * 6.28,
-                    ry: Math.random() * 6.28,
-                    rz: Math.random() * 6.28,
-                    srx: (Math.random() - 0.5) * 0.0055,
-                    sry: (Math.random() - 0.5) * 0.0055,
-                    srz: (Math.random() - 0.5) * 0.004,
-                    depth: Math.random(),                            // 0 远 → 1 近
-                    color: 'rgb(' + shade + ',' + shade + ',' + Math.min(255, shade + 10) + ')',
-                    lw: 1 + Math.random() * 0.6
-                });
-            }
-        }
-
-        // 3D 顶点 → 屏幕坐标（绕三轴旋转 + 弱透视）
+        // 3D 顶点 → 屏幕（三轴旋转 + 弱透视）
         function project(px, py, pz, o) {
             const cx = Math.cos(o.rx), sx = Math.sin(o.rx);
             const y1 = py * cx - pz * sx, z1 = py * sx + pz * cx;
@@ -1796,122 +1800,210 @@
             const x1 = px * cy + z1 * sy, z2 = -px * sy + z1 * cy;
             const cz = Math.cos(o.rz), sz = Math.sin(o.rz);
             const x2 = x1 * cz - y1 * sz, y2 = x1 * sz + y1 * cz;
-            const p = 1 / (1 + z2 * 0.16);
+            const p = 1 / (1 + z2 * 0.14);
+            o._mz = (o._mz || 0) + z2;
             return [o.x + x2 * o.size * p, o.y + y2 * o.size * p];
         }
 
-        function physics(dt) {
-            const k = dt / 16.67;
-            for (const o of items) {
-                // 自主移动：随机微扰 + 限速
-                o.vx += (Math.random() - 0.5) * 0.007 * k;
-                o.vy += (Math.random() - 0.5) * 0.007 * k;
-                const sp = Math.hypot(o.vx, o.vy) || 0.001;
-                const max = 0.36, min = 0.07;
-                if (sp > max) { o.vx *= max / sp; o.vy *= max / sp; }
-                else if (sp < min) { o.vx *= min / sp; o.vy *= min / sp; }
+        // ---------- 图层 ----------
+        function makeLayer(canvas, cfg) {
+            if (!canvas) return null;
+            const ctx = canvas.getContext('2d');
+            const items = [];
+            let cw = 0, ch = 0;
 
-                o.x += o.vx * k;
-                o.y += o.vy * k;
-
-                // 视口边界反弹
-                if (o.x < o.r) { o.x = o.r; o.vx = Math.abs(o.vx); }
-                if (o.x > W - o.r) { o.x = W - o.r; o.vx = -Math.abs(o.vx); }
-                if (o.y < o.r) { o.y = o.r; o.vy = Math.abs(o.vy); }
-                if (o.y > H - o.r) { o.y = H - o.r; o.vy = -Math.abs(o.vy); }
-
-                // 自转
-                o.rx += o.srx * k;
-                o.ry += o.sry * k;
-                o.rz += o.srz * k;
+            function resize() {
+                const dpr = Math.min(window.devicePixelRatio || 1, 2);
+                cw = W; ch = H;
+                canvas.width = Math.floor(cw * dpr);
+                canvas.height = Math.floor(ch * dpr);
+                canvas.style.width = cw + 'px';
+                canvas.style.height = ch + 'px';
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             }
 
-            // 鼠标碰撞：推开 + 速度反射 + 自转扰动
-            if (mouse.active) {
+            function spawn() {
+                items.length = 0;
+                const count = isMobile ? cfg.mobileCount : cfg.count;
+                for (let i = 0; i < count; i++) {
+                    const mesh = MESHES[(i * 3 + cfg.meshOffset) % MESHES.length];
+                    const size = cfg.minSize + Math.random() * (cfg.maxSize - cfg.minSize);
+                    const lum = cfg.lumMin + Math.floor(Math.random() * cfg.lumRange);
+                    items.push({
+                        v: mesh.v,
+                        e: mesh.e,
+                        x: Math.random() * cw,
+                        y: Math.random() * ch,
+                        size: size,
+                        r: size * 1.15,
+                        vx: (Math.random() - 0.5) * cfg.maxSpeed * 0.7,
+                        vy: (Math.random() - 0.5) * cfg.maxSpeed * 0.7,
+                        rx: Math.random() * 6.283,
+                        ry: Math.random() * 6.283,
+                        rz: Math.random() * 6.283,
+                        srx: (Math.random() - 0.5) * cfg.spin,
+                        sry: (Math.random() - 0.5) * cfg.spin,
+                        srz: (Math.random() - 0.5) * cfg.spin * 0.6,
+                        depth: Math.random(),
+                        rgb: lum + ',' + (lum + 5) + ',' + Math.min(255, lum + 18),
+                        lw: cfg.lineWidth * (0.8 + Math.random() * 0.55)
+                    });
+                }
+            }
+
+            function physics(dt) {
+                const k = Math.min(dt / 16.67, 3);
                 for (const o of items) {
-                    const dx = o.x - mouse.x, dy = o.y - mouse.y;
-                    const d = Math.hypot(dx, dy) || 0.001;
-                    const minD = mouse.r + o.r * 0.85;
-                    if (d < minD) {
-                        const nx = dx / d, ny = dy / d;
-                        const overlap = minD - d;
-                        o.x += nx * overlap * 0.55;
-                        o.y += ny * overlap * 0.55;
-                        const vn = o.vx * nx + o.vy * ny;
-                        if (vn < 0) {
-                            o.vx -= 2 * vn * nx;
-                            o.vy -= 2 * vn * ny;
+                    // 极缓慢随机漂移
+                    o.vx += (Math.random() - 0.5) * 0.0018 * k;
+                    o.vy += (Math.random() - 0.5) * 0.0018 * k;
+                    const sp = Math.hypot(o.vx, o.vy) || 0.0001;
+                    if (sp > cfg.maxSpeed) { o.vx *= cfg.maxSpeed / sp; o.vy *= cfg.maxSpeed / sp; }
+                    else if (sp < cfg.minSpeed) { o.vx *= cfg.minSpeed / sp; o.vy *= cfg.minSpeed / sp; }
+
+                    o.x += o.vx * k;
+                    o.y += o.vy * k;
+
+                    // 深空环绕：移出视口后从另一侧进入
+                    if (o.x < -o.r) o.x = cw + o.r;
+                    else if (o.x > cw + o.r) o.x = -o.r;
+                    if (o.y < -o.r) o.y = ch + o.r;
+                    else if (o.y > ch + o.r) o.y = -o.r;
+
+                    o.rx += o.srx * k;
+                    o.ry += o.sry * k;
+                    o.rz += o.srz * k;
+                }
+
+                // 鼠标柔场：距离越近推力越强（限幅，避免突兀弹跳）
+                if (mouse.active) {
+                    for (const o of items) {
+                        let dx = o.x - mouse.x, dy = o.y - mouse.y;
+                        let d = Math.hypot(dx, dy);
+                        if (d < 2) {                       // 与鼠标几乎重合时取随机方向，避免方向突变
+                            const a = Math.random() * 6.283;
+                            dx = Math.cos(a); dy = Math.sin(a); d = 1;
                         }
-                        o.srx += (Math.random() - 0.5) * 0.0012;
-                        o.sry += (Math.random() - 0.5) * 0.0012;
+                        const range = mouse.r + o.r;
+                        if (d < range) {
+                            const f = Math.min((1 - d / range) * cfg.field, 0.02) * k;
+                            o.vx += (dx / d) * f;
+                            o.vy += (dy / d) * f;
+                        }
+                    }
+                }
+
+                // 几何体之间：柔和分离 + 少量动量交换
+                for (let i = 0; i < items.length; i++) {
+                    const a = items[i];
+                    for (let j = i + 1; j < items.length; j++) {
+                        const b = items[j];
+                        const dx = b.x - a.x, dy = b.y - a.y;
+                        const d = Math.hypot(dx, dy) || 0.001;
+                        const minD = (a.r + b.r) * 0.82;
+                        if (d < minD) {
+                            const nx = dx / d, ny = dy / d;
+                            const push = Math.min((minD - d) * 0.32, 3.2);   // 单帧分离限幅
+                            a.x -= nx * push; a.y -= ny * push;
+                            b.x += nx * push; b.y += ny * push;
+                            const va = a.vx * nx + a.vy * ny;
+                            const vb = b.vx * nx + b.vy * ny;
+                            if (va - vb > 0) {
+                                const imp = (va - vb) * 0.45;
+                                a.vx -= imp * nx; a.vy -= imp * ny;
+                                b.vx += imp * nx; b.vy += imp * ny;
+                            }
+                        }
                     }
                 }
             }
 
-            // 几何体之间的弹性碰撞
-            for (let i = 0; i < items.length; i++) {
-                const a = items[i];
-                for (let j = i + 1; j < items.length; j++) {
-                    const b = items[j];
-                    const dx = b.x - a.x, dy = b.y - a.y;
-                    const d = Math.hypot(dx, dy) || 0.001;
-                    const minD = (a.r + b.r) * 0.94;
-                    if (d < minD) {
-                        const nx = dx / d, ny = dy / d;
-                        const push = (minD - d) * 0.5;
-                        a.x -= nx * push; a.y -= ny * push;
-                        b.x += nx * push; b.y += ny * push;
-                        const va = a.vx * nx + a.vy * ny;
-                        const vb = b.vx * nx + b.vy * ny;
-                        if (va - vb > 0) {
-                            const imp = (va - vb) * 0.92;
-                            a.vx -= imp * nx; a.vy -= imp * ny;
-                            b.vx += imp * nx; b.vy += imp * ny;
-                            a.srx += (Math.random() - 0.5) * 0.0014;
-                            b.sry += (Math.random() - 0.5) * 0.0014;
+            function draw() {
+                ctx.clearRect(0, 0, cw, ch);
+                const list = items.slice().sort(function (a, b) { return a.depth - b.depth; });
+                for (const o of list) {
+                    const pts = o.v.map(function (p) { return project(p[0], p[1], p[2], o); });
+                    const alpha = (cfg.alphaMin + o.depth * cfg.alphaRange);
+                    ctx.beginPath();
+                    for (let k = 0; k < o.e.length; k++) {
+                        const p1 = pts[o.e[k][0]], p2 = pts[o.e[k][1]];
+                        ctx.moveTo(p1[0], p1[1]);
+                        ctx.lineTo(p2[0], p2[1]);
+                    }
+                    ctx.lineJoin = 'round';
+                    ctx.lineCap = 'round';
+                    ctx.lineWidth = o.lw * (0.85 + o.depth * 0.45);
+                    if (cfg.glow > 0) {
+                        ctx.shadowColor = 'rgba(' + o.rgb + ',' + (alpha * 0.9).toFixed(3) + ')';
+                        ctx.shadowBlur = cfg.glow;
+                    }
+                    ctx.strokeStyle = 'rgba(' + o.rgb + ',' + alpha.toFixed(3) + ')';
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+
+                    // 顶点光点（HUD 质感）
+                    if (cfg.dots && !isMobile) {
+                        ctx.fillStyle = 'rgba(255,255,255,' + (alpha * 0.85).toFixed(3) + ')';
+                        for (let k = 0; k < pts.length; k++) {
+                            ctx.beginPath();
+                            ctx.arc(pts[k][0], pts[k][1], 1.05, 0, 6.283);
+                            ctx.fill();
                         }
                     }
                 }
             }
+
+            return {
+                resize: resize,
+                spawn: spawn,
+                step: function (dt) { if (!reduce) physics(dt); draw(); }
+            };
         }
 
-        function draw() {
-            ctx.clearRect(0, 0, W, H);
-            const list = items.slice().sort(function (a, b) { return a.depth - b.depth; });
-            for (const o of list) {
-                const pts = o.v.map(function (p) { return project(p[0], p[1], p[2], o); });
-                ctx.beginPath();
-                for (let k = 0; k < o.e.length; k++) {
-                    const p1 = pts[o.e[k][0]], p2 = pts[o.e[k][1]];
-                    ctx.moveTo(p1[0], p1[1]);
-                    ctx.lineTo(p2[0], p2[1]);
-                }
-                ctx.globalAlpha = 0.34 + o.depth * 0.46;
-                ctx.strokeStyle = o.color;
-                ctx.lineWidth = o.lw * (0.8 + o.depth * 0.5);
-                ctx.lineJoin = 'round';
-                ctx.stroke();
-            }
-            ctx.globalAlpha = 1;
+        // 近景层：大尺寸、清晰、带辉光与顶点光点
+        const nearLayer = makeLayer(nearCanvas, {
+            count: 11, mobileCount: 6,
+            minSize: 36, maxSize: 82,
+            lineWidth: 1.05, glow: 11,
+            maxSpeed: 0.15, minSpeed: 0.03, field: 0.05,
+            spin: 0.0016,
+            lumMin: 208, lumRange: 44,
+            alphaMin: 0.3, alphaRange: 0.46,
+            dots: true, meshOffset: 0
+        });
+
+        // 远景层：小尺寸、虚化、暗、略快
+        const farLayer = makeLayer(farCanvas, {
+            count: 24, mobileCount: 0,
+            minSize: 15, maxSize: 34,
+            lineWidth: 0.9, glow: 0,
+            maxSpeed: 0.3, minSpeed: 0.06, field: 0.012,
+            spin: 0.0011,
+            lumMin: 150, lumRange: 60,
+            alphaMin: 0.18, alphaRange: 0.3,
+            dots: false, meshOffset: 2
+        });
+
+        function resizeAll() {
+            W = window.innerWidth;
+            H = window.innerHeight;
+            if (nearLayer) { nearLayer.resize(); }
+            if (farLayer) { farLayer.resize(); }
         }
 
         function loop(now) {
             const dt = Math.min(now - last || 16.7, 48);
             last = now;
-            if (!reduce) physics(dt);
-            draw();
+            if (nearLayer) nearLayer.step(dt);
+            if (farLayer) farLayer.step(dt);
             raf = requestAnimationFrame(loop);
         }
 
-        resize();
-        spawn(countFor());
+        resizeAll();
+        if (nearLayer) nearLayer.spawn();
+        if (farLayer) farLayer.spawn();
 
-        window.addEventListener('resize', function () {
-            resize();
-            const want = countFor();
-            if (items.length !== want) spawn(want);
-        });
-
+        // 鼠标柔场
         if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
             window.addEventListener('mousemove', function (e) {
                 mouse.x = e.clientX;
@@ -1921,7 +2013,17 @@
             window.addEventListener('mouseout', function () { mouse.active = false; });
         }
 
-        // 标签页隐藏时暂停，节省资源
+        let resizeTimer = null;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function () {
+                resizeAll();
+                if (nearLayer) nearLayer.spawn();
+                if (farLayer) farLayer.spawn();
+            }, 220);
+        });
+
+        // 隐藏标签页时暂停渲染
         document.addEventListener('visibilitychange', function () {
             if (document.hidden) {
                 if (raf) { cancelAnimationFrame(raf); raf = null; }
@@ -1932,20 +2034,6 @@
         });
 
         raf = requestAnimationFrame(loop);
-    })();
-
-    // 顶部滚动进度条
-    (function initScrollProgress() {
-        const bar = document.getElementById('scrollProgress');
-        if (!bar) return;
-        function update() {
-            const max = document.documentElement.scrollHeight - window.innerHeight;
-            const pct = max > 0 ? (window.scrollY / max) * 100 : 0;
-            bar.style.width = pct + '%';
-        }
-        window.addEventListener('scroll', function () { requestAnimationFrame(update); }, { passive: true });
-        window.addEventListener('resize', update);
-        update();
     })();
 
     // 灯箱功能
