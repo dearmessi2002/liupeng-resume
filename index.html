@@ -39,33 +39,137 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
             color: var(--text);
             background-color: var(--bg);
-            background-image: radial-gradient(ellipse 95% 60% at 50% 0%, rgba(255, 255, 255, 0.075), transparent 72%);
+            background-image: radial-gradient(ellipse 95% 60% at 50% 0%, rgba(255, 255, 255, 0.06), transparent 72%);
             background-attachment: fixed;
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
 
-        /* 缓慢流动的科技网格 */
+        /* ===== 背景空间层次（5 层） ===== */
+        /* L1 环境光晕（缓慢呼吸） */
+        html::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 58% 44% at 10% 6%, rgba(255, 255, 255, 0.085), transparent 64%),
+                radial-gradient(ellipse 52% 42% at 90% 20%, rgba(255, 255, 255, 0.06), transparent 64%),
+                radial-gradient(ellipse 72% 48% at 50% 104%, rgba(255, 255, 255, 0.07), transparent 68%);
+            animation: auroraBreath 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -5;
+        }
+
+        @keyframes auroraBreath {
+            0%, 100% { opacity: 0.7; transform: translate3d(0, 0, 0) scale(1); }
+            50% { opacity: 1; transform: translate3d(0, -16px, 0) scale(1.05); }
+        }
+
+        /* L2 远层细网格（缓慢漂移 + 滚动视差） */
         body::before {
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             background-image:
-                linear-gradient(rgba(255, 255, 255, 0.038) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.038) 1px, transparent 1px);
+                linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
             background-size: 46px 46px;
             animation: gridDrift 26s linear infinite;
+            transform: translate3d(0, var(--bgY-1, 0px), 0);
             pointer-events: none;
-            z-index: -1;
+            z-index: -4;
         }
 
         @keyframes gridDrift {
             from { background-position: 0 0, 0 0; }
             to { background-position: 46px 46px, 46px 46px; }
+        }
+
+        /* L3 近层粗网格（反向漂移 + 中心聚焦掩码 → 纵深纵深） */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.032) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.032) 1px, transparent 1px);
+            background-size: 138px 138px;
+            animation: gridDriftNear 17s linear infinite;
+            transform: translate3d(0, var(--bgY-2, 0px), 0);
+            -webkit-mask-image: radial-gradient(ellipse 85% 72% at 50% 42%, #000 28%, transparent 78%);
+            mask-image: radial-gradient(ellipse 85% 72% at 50% 42%, #000 28%, transparent 78%);
+            pointer-events: none;
+            z-index: -3;
+        }
+
+        @keyframes gridDriftNear {
+            from { background-position: 0 0, 0 0; }
+            to { background-position: -138px 138px, -138px 138px; }
+        }
+
+        /* L4 星点粒子层（明暗闪烁） */
+        html::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                radial-gradient(1.5px 1.5px at 12% 18%, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1.2px 1.2px at 42% 8%, rgba(255,255,255,0.6), transparent),
+                radial-gradient(1.8px 1.8px at 73% 26%, rgba(255,255,255,0.7), transparent),
+                radial-gradient(1.2px 1.2px at 88% 62%, rgba(255,255,255,0.55), transparent),
+                radial-gradient(1.6px 1.6px at 26% 72%, rgba(255,255,255,0.65), transparent),
+                radial-gradient(1.3px 1.3px at 58% 88%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1.1px 1.1px at 8% 46%, rgba(255,255,255,0.45), transparent),
+                radial-gradient(1.4px 1.4px at 94% 34%, rgba(255,255,255,0.5), transparent);
+            background-size: 520px 520px;
+            background-repeat: repeat;
+            animation: starTwinkle 9s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -2;
+        }
+
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.32; }
+            50% { opacity: 0.7; }
+        }
+
+        /* L5 光束横扫 + 鼠标跟随环境光 */
+        .bg-fx {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .bg-beam {
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 32%;
+            height: 200%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transform: rotate(18deg);
+            animation: beamSweep 24s linear infinite;
+        }
+
+        @keyframes beamSweep {
+            0% { left: -60%; }
+            100% { left: 132%; }
+        }
+
+        .bg-glow {
+            position: absolute;
+            width: 76vmax;
+            height: 76vmax;
+            left: 50%;
+            top: 42%;
+            margin-left: -38vmax;
+            margin-top: -38vmax;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05), transparent 60%);
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: transform;
         }
 
         /* 顶部滚动进度条 */
@@ -960,6 +1064,15 @@
 
         /* 移动端适配 */
         @media (max-width: 768px) {
+            /* 背景特效降级，保证移动端流畅 */
+            .bg-beam {
+                display: none;
+            }
+
+            html::after {
+                opacity: 0.45;
+            }
+
             .navbar {
                 padding: 0 20px;
             }
@@ -1040,7 +1153,9 @@
 
         /* 尊重系统"减少动态效果"设置 */
         @media (prefers-reduced-motion: reduce) {
-            body::before, .hero::after, .gallery-header::after, .hero-avatar, .hero-orbs span, .timeline-item::before {
+            html::before, body::before, body::after, html::after,
+            .bg-beam, .hero::after, .gallery-header::after, .hero-avatar,
+            .hero-orbs span, .timeline-item::before {
                 animation: none;
             }
             .reveal {
@@ -1052,6 +1167,12 @@
     </style>
 </head>
 <body>
+
+<!-- 背景特效层（光束 + 鼠标环境光） -->
+<div class="bg-fx" aria-hidden="true">
+    <div class="bg-beam"></div>
+    <div class="bg-glow" id="bgGlow"></div>
+</div>
 
 <!-- 顶部滚动进度条 -->
 <div class="scroll-progress" id="scrollProgress"></div>
@@ -1588,6 +1709,46 @@
         const nav = document.querySelector('.navbar');
         window.addEventListener('scroll', function () {
             nav.classList.toggle('scrolled', window.scrollY > 10);
+        }, { passive: true });
+    })();
+
+    // 背景空间感：鼠标环境光跟随 + 双层网格滚动视差
+    (function initBgFX() {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const glow = document.getElementById('bgGlow');
+
+        // 鼠标跟随环境光（仅精确指针设备）
+        if (glow && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+            let tx = 0, ty = 0, cx = 0, cy = 0, running = false;
+            function loop() {
+                cx += (tx - cx) * 0.085;
+                cy += (ty - cy) * 0.085;
+                glow.style.transform = 'translate3d(' + cx.toFixed(1) + 'px,' + cy.toFixed(1) + 'px,0)';
+                if (Math.abs(tx - cx) > 0.4 || Math.abs(ty - cy) > 0.4) {
+                    requestAnimationFrame(loop);
+                } else {
+                    running = false;
+                }
+            }
+            window.addEventListener('mousemove', function (e) {
+                tx = (e.clientX - window.innerWidth / 2) * 0.14;
+                ty = (e.clientY - window.innerHeight / 2) * 0.14;
+                if (!running) { running = true; requestAnimationFrame(loop); }
+            }, { passive: true });
+        }
+
+        // 滚动视差：两层网格以不同速率位移，形成纵深
+        const root = document.documentElement;
+        let ticking = false;
+        window.addEventListener('scroll', function () {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(function () {
+                const y = window.scrollY;
+                root.style.setProperty('--bgY-1', (y * -0.045).toFixed(1) + 'px');
+                root.style.setProperty('--bgY-2', (y * -0.11).toFixed(1) + 'px');
+                ticking = false;
+            });
         }, { passive: true });
     })();
 
