@@ -639,11 +639,60 @@
             letter-spacing: 1px;
         }
 
-        /* 个人性格特点 */
+        /* 个人性格特点（分条展示） */
         .personality-desc {
             font-size: 14.5px;
             color: var(--text-2);
             line-height: 1.95;
+        }
+
+        .personality-item {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--line);
+            transition: transform 0.3s ease;
+        }
+
+        .personality-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .personality-item:hover {
+            transform: translateX(3px);
+        }
+
+        .personality-num {
+            font-family: var(--mono);
+            font-size: 12px;
+            letter-spacing: 1px;
+            color: var(--text-3);
+            padding-top: 2px;
+            flex-shrink: 0;
+            transition: color 0.3s ease;
+        }
+
+        .personality-item:hover .personality-num {
+            color: var(--white);
+        }
+
+        .personality-body {
+            flex: 1;
+        }
+
+        .personality-subtitle {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .personality-item p {
+            font-size: 13.5px;
+            color: var(--text-2);
+            line-height: 1.85;
             text-align: justify;
         }
 
@@ -1077,10 +1126,36 @@
         <div class="main-content">
             <div class="card">
                 <div class="card-title">个人性格特点</div>
-                <p class="personality-desc">
-                    <span class="personality-lead">兼具创业者的果敢韧性与团队协作的亲和力。</span>
-                    作为学生创业团队核心，勇于跳出舒适区，从零起步推动项目落地，展现出极强的抗压能力和目标执行力。在统筹研发与管理中，善于凝聚共识、合理分工，既敢于拍板决策，又能耐心倾听成员意见，务实包容。面对技术难题，不轻言放弃；对接客户与合作方时，拥有出色的沟通诚意与换位思考能力。此外，多次参与志愿服务，富有社会责任感。主动进取、敢于担当、善于合作且情绪稳定，愿意在挑战性岗位中持续成长。
-                </p>
+                <div class="personality-desc">
+                    <div class="personality-item">
+                        <span class="personality-num">01</span>
+                        <div class="personality-body">
+                            <div class="personality-subtitle">高效学习与业务理解能力</div>
+                            <p>逻辑思维清晰，可快速适配全新业务与技术环境，快速掌握复杂技术框架与业务链路，适应多变工作场景。</p>
+                        </div>
+                    </div>
+                    <div class="personality-item">
+                        <span class="personality-num">02</span>
+                        <div class="personality-body">
+                            <div class="personality-subtitle">目标驱动的协作统筹能力</div>
+                            <p>在项目中乐于承担关键角色，依托清晰的沟通对齐各方诉求，善于权衡方案取舍，追求以可靠方案、高效节奏推进项目落地。</p>
+                        </div>
+                    </div>
+                    <div class="personality-item">
+                        <span class="personality-num">03</span>
+                        <div class="personality-body">
+                            <div class="personality-subtitle">强抗压的团队协同素养</div>
+                            <p>具备良好的沟通表达与大局意识，可以快速和伙伴建立协作默契，在压力与变化之下依旧保持稳定输出，坚守专业标准推进工作。</p>
+                        </div>
+                    </div>
+                    <div class="personality-item">
+                        <span class="personality-num">04</span>
+                        <div class="personality-body">
+                            <div class="personality-subtitle">结果导向的攻坚思维</div>
+                            <p>对待项目保有强烈的责任心与执行力，面对难题不回避等待，擅长拆解复杂问题，主动调研试错，是注重落地成效的实干型执行者。</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="card">
@@ -1101,6 +1176,9 @@
                             <div class="timeline-subtitle">建筑工程 · 本科</div>
                         </div>
                         <div class="timeline-date">2020.09 - 2024.06</div>
+                    </div>
+                    <div class="timeline-desc">
+                        绩点：3.7（满分4.0）
                     </div>
                 </div>
             </div>
@@ -1125,7 +1203,7 @@
                         <div class="timeline-date">2026.07 - 至今</div>
                     </div>
                     <div class="timeline-desc">
-                        2025年1月参加XbotPark智能建造科创训练营，任团队队长带队斩获最佳设计奖；训练营后联合5名伙伴创立BRAVE科技，成功入孵重庆智能建造研究院，专注建筑外墙喷涂机器人研发。2025年7月项目通过官方立项，获50万元种子轮投资并正式启动产品化研发。任职期间统筹项目整体规划与团队管理，主导电控系统全流程开发，覆盖PLC开发、电控方案设计、电路调试及ROS2算法开发等工作，完整参与软硬件从0到1的研发流程；同步对接上下游合作方与行业客户，参与多场智能建造展会负责产品推介与商务对接。截至2026年6月，已带领团队完成多轮产品迭代并通过整机可行性验证，再经1-2轮优化即可具备工程作业能力。2026年7月团队入驻湘江科技创新院，并获25万追加投资，继续完成外墙喷涂机器人创业项目的研发。
+                        2025年1月参加XbotPark智能建造科创训练营，任团队队长带队斩获最佳设计奖；训练营后联合5名伙伴创立BRAVE科技，成功入孵重庆智能建造研究院，专注建筑外墙喷涂机器人研发。2025年7月项目通过官方立项，获50万元种子轮投资并正式启动产品化研发。2026年7月团队入驻湘江科技创新院，并获25万追加投资，继续完成外墙喷涂机器人创业项目的研发。任职期间主要负责：
                     </div>
                 </div>
             </div>
@@ -1206,6 +1284,34 @@
                 <div class="honor-item">
                     <span class="honor-name">XbotPark智能建造科创训练营 · 最佳设计奖</span>
                     <span class="honor-date">2025-01</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">在校经历</div>
+                <div class="timeline-item">
+                    <div class="timeline-header">
+                        <div>
+                            <div class="timeline-title">第六届全国大学生结构信息技术设计大赛 · 全国一等奖</div>
+                            <div class="timeline-subtitle">小组核心成员</div>
+                        </div>
+                        <div class="timeline-date">2023.12 - 2024.06</div>
+                    </div>
+                    <div class="timeline-desc">
+                        作为小组核心成员参与大赛，完成从结构选型到深化方案，再到受力分析及最终的图纸输出，并将此成果作为毕业设计主要内容。
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-header">
+                        <div>
+                            <div class="timeline-title">学院冬之声文艺汇演</div>
+                            <div class="timeline-subtitle">班级总策划</div>
+                        </div>
+                        <div class="timeline-date">2020.10 - 2020.12</div>
+                    </div>
+                    <div class="timeline-desc">
+                        作为班级总策划带领同学积极参与学院冬之声文艺汇演，包括节目选择、编排、角色挑选、排练规划。最后成功通过层层筛选，带领参演同学登上冬之声的表演舞台，并顺利完成节目的表演。
+                    </div>
                 </div>
             </div>
 
