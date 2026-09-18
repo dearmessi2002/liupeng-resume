@@ -2065,6 +2065,26 @@
         raf = requestAnimationFrame(loop);
     })();
 
+    // 顶部滚动进度条：随页面滚动实时增长
+    (function initScrollProgress() {
+        const bar = document.getElementById('scrollProgress');
+        if (!bar) return;
+        let ticking = false;
+        function update() {
+            const max = document.documentElement.scrollHeight - window.innerHeight;
+            const pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+            bar.style.width = pct.toFixed(2) + '%';
+            ticking = false;
+        }
+        window.addEventListener('scroll', function () {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(update);
+        }, { passive: true });
+        window.addEventListener('resize', update);
+        update();
+    })();
+
     // 灯箱功能
     function openLightbox(index) {
         currentPhotoIndex = index;
