@@ -1756,7 +1756,6 @@
             [INV, PHI, 0], [INV, -PHI, 0], [-INV, PHI, 0], [-INV, -PHI, 0],
             [PHI, 0, INV], [PHI, 0, -INV], [-PHI, 0, INV], [-PHI, 0, -INV]
         ];
-        const CUBE_V = [[-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1], [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]];
         const OCTA_V = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
 
         // 精密球体（三轴经纬环）
@@ -1777,11 +1776,46 @@
             return { v: verts, e: edges };
         }
 
+        // 陀螺仪环组（不同半径 / 不同倾角的同心环 + 中心核点 → 科幻 HUD 元素）
+        function gyroMesh(n) {
+            const verts = [], edges = [];
+            const rings = [
+                { r: 1.0,  tilt: 0,              axis: 'z' },
+                { r: 0.72, tilt: Math.PI / 2.6,  axis: 'x' },
+                { r: 0.46, tilt: -Math.PI / 2.2, axis: 'y' }
+            ];
+            for (let k = 0; k < rings.length; k++) {
+                const ring = rings[k];
+                const start = verts.length;
+                const ct = Math.cos(ring.tilt), st = Math.sin(ring.tilt);
+                for (let i = 0; i < n; i++) {
+                    const a = (i / n) * Math.PI * 2;
+                    let x = Math.cos(a) * ring.r;
+                    let y = Math.sin(a) * ring.r;
+                    let z = 0;
+                    if (ring.axis === 'x') {
+                        const y1 = y * ct;
+                        z = y * st;
+                        y = y1;
+                    } else if (ring.axis === 'y') {
+                        const x1 = x * ct;
+                        z = -x * st;
+                        x = x1;
+                    }
+                    verts.push([x, y, z]);
+                    if (i > 0) edges.push([start + i - 1, start + i]);
+                }
+                edges.push([start + n - 1, start]);
+            }
+            verts.push([0, 0, 0]);   // 中心核点（渲染为亮点）
+            return { v: verts, e: edges };
+        }
+
         const MESHES = [
-            { v: ICO_V, e: autoEdges(ICO_V) },      // 二十面体
-            { v: DODE_V, e: autoEdges(DODE_V) },    // 十二面体
-            { v: CUBE_V, e: autoEdges(CUBE_V) },    // 立方体
-            { v: OCTA_V, e: autoEdges(OCTA_V) },    // 八面体
+            { v: ICO_V, e: autoEdges(ICO_V) },      // 正二十面体
+            { v: DODE_V, e: autoEdges(DODE_V) },    // 正十二面体
+            gyroMesh(14),                           // 陀螺仪环组
+            { v: OCTA_V, e: autoEdges(OCTA_V) },    // 正八面体
             ringSphere(18)                          // 精密球体
         ];
 
